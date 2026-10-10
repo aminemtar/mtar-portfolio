@@ -1,6 +1,6 @@
 <div align="center">
 
-# 👋 Hi, I'm Mohamed Amine Mtar
+# 👋 Mohamed Amine Mtar
 
 ### Mobile & Web Developer · Software Engineer
 
@@ -17,9 +17,9 @@
 
 ## 🌟 About This Project
 
-A modern, bilingual (🇬🇧 English / 🇫🇷 Français), animated **personal portfolio** built from scratch to showcase my work as a **Mobile & Web Developer**.
+A modern, bilingual (🇬🇧 English / 🇫🇷 Français), animated **personal portfolio** built with **React + Vite** to showcase my work as a **Mobile & Web Developer**.
 
-The design is **light, airy and pastel-themed**, with smooth animations, glassmorphism, and a smooth user experience crafted to make a strong first impression on recruiters.
+The design is **light, airy and pastel-themed**, with smooth animations, glassmorphism, and a modular architecture designed for maintainability.
 
 > 🎯 **Goal:** Land a role as a **Mobile Developer** or **Full-Stack Engineer** — in Tunisia, France, or remote.
 
@@ -41,9 +41,9 @@ The design is **light, airy and pastel-themed**, with smooth animations, glassmo
 - **3D tilt cards** for projects (mouse-tracking perspective)
 - **Intersection Observer reveals** — sections fade up on scroll
 - **Animated gradient rings** around profile photo
-- **Marquee** of tech stack scrolling infinitely
+- **Icon marquee** — tech stack with real brand logos scrolling infinitely
 - **Floating blob backgrounds** drifting in loop
-- **Number count-up** animations on stats
+- **Pause-on-hover** on the marquee for easy reading
 
 ### 🌍 Internationalization (i18n)
 
@@ -56,15 +56,16 @@ The design is **light, airy and pastel-themed**, with smooth animations, glassmo
 ### 📄 Smart CV Download
 
 - **Dropdown menu** with 2 options:
-  - 👁 **View online** — opens PDF in a new tab
-  - ⬇ **Download** — saves with a clean filename
-- **Auto-selects** the correct PDF based on active language
+  - 👁 **View online** — opens the language-correct PDF in a new tab
+  - ⬇ **Download** — saves with a clean filename (`...-EN.pdf` / `...-FR.pdf`)
+- **Auto-selects** the PDF based on active language
+- **Cache-busting** via URL hash — no stale PDF ever served
 - **3 access points** — navbar, hero, contact section
 
 ### 🧩 Content Sections
 
-1. **Hero** — photo, badge "Open to work", typewriter roles, socials
-2. **Marquee** — infinite tech stack
+1. **Hero** — photo, badge "Open to work", typewriter roles, socials, CV download
+2. **Marquee** — infinite tech stack with real brand icons
 3. **Projects** — 7 real projects (Smart Conseil, Orange, Ooredoo, Cloud Monsters, DevOps, Artie, Clothy)
 4. **Skills** — 6 categorized groups (Mobile, Frontend, Backend, AI, DevOps, Languages)
 5. **Experience** — animated timeline with 4 real positions
@@ -77,18 +78,95 @@ The design is **light, airy and pastel-themed**, with smooth animations, glassmo
 
 <div align="center">
 
-| Category       | Technologies                             |
-| -------------- | ---------------------------------------- |
-| **Framework**  | React 18                                 |
-| **Build Tool** | Vite                                     |
-| **Styling**    | Pure CSS (custom properties, animations) |
-| **Fonts**      | Inter, Fraunces, JetBrains Mono          |
-| **Deployment** | GitHub Pages via `gh-pages`              |
-| **State**      | React Context API + LocalStorage         |
+| Category       | Technologies                                |
+| -------------- | ------------------------------------------- |
+| **Framework**  | React 18                                    |
+| **Build Tool** | Vite                                        |
+| **Styling**    | Pure CSS (custom properties, animations)    |
+| **Fonts**      | Inter, Fraunces, JetBrains Mono             |
+| **Icons**      | [Simple Icons CDN](https://simpleicons.org) |
+| **Deployment** | GitHub Pages via `gh-pages`                 |
+| **State**      | React Context API + LocalStorage            |
 
 </div>
 
-**No CSS framework, no animation library** — everything built from scratch to demonstrate **real front-end skills**.
+**No CSS framework, no animation library, no icon package** — everything built from scratch with native web APIs.
+
+---
+
+## 🏗 Architecture
+
+The project follows a **modular, feature-based architecture** so that any change happens in **one place**:
+
+```
+projet/
+│
+├── public/                          # Static assets (served at /)
+│   ├── profil.png                   # Profile photo
+│   ├── cv-en.pdf                    # English CV
+│   └── cv-fr.pdf                    # French CV
+│
+├── src/
+│   │
+│   ├── data/                        # 📝 ALL CONTENT LIVES HERE
+│   │   ├── info.js                  # Name, photo, contacts, links
+│   │   └── translations.jsx         # EN/FR text for every section
+│   │
+│   ├── context/                     # 🌍 Global state
+│   │   └── LanguageContext.jsx      # Language provider + useT() hook
+│   │
+│   ├── hooks/                       # 🎣 Reusable logic
+│   │   ├── useReveal.js             # Intersection Observer for scroll-in
+│   │   ├── useMouse.js              # Track cursor position
+│   │   ├── useScrollProgress.js     # Page scroll percentage
+│   │   └── useClickOutside.js       # Detect click outside an element
+│   │
+│   ├── components/
+│   │   │
+│   │   ├── layout/                  # 🧱 Page shell
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── Footer.jsx
+│   │   │   ├── CursorHalo.jsx
+│   │   │   └── ProgressBar.jsx
+│   │   │
+│   │   ├── ui/                      # 🧩 Reusable UI pieces
+│   │   │   ├── Avatar.jsx           # Photo with animated gradient ring
+│   │   │   ├── CVButton.jsx         # Language-aware CV dropdown
+│   │   │   └── LangToggle.jsx       # EN/FR pill toggle
+│   │   │
+│   │   └── sections/                # 📄 Page sections
+│   │       ├── Hero.jsx
+│   │       ├── Marquee.jsx          # Tech stack with icons
+│   │       ├── Projects.jsx
+│   │       ├── Skills.jsx
+│   │       ├── Experience.jsx
+│   │       ├── Education.jsx
+│   │       └── Contact.jsx
+│   │
+│   ├── App.jsx                      # 🎯 Assembles everything (~30 lines)
+│   ├── App.css                      # Complete stylesheet
+│   └── main.jsx                     # React entry point
+│
+├── index.html
+├── vite.config.js                   # `base` set for GH Pages
+├── package.json
+└── README.md
+```
+
+### 🎯 Why this architecture?
+
+| Need                                   | Where to go                                                      |
+| -------------------------------------- | ---------------------------------------------------------------- |
+| **Change a text** (EN or FR)           | `src/data/translations.jsx` — one file                           |
+| **Change your photo/email/LinkedIn**   | `src/data/info.js` — one file                                    |
+| **Change the colors**                  | `src/App.css` → `:root` variables                                |
+| **Add a project**                      | `src/data/translations.jsx` → `projects` array                   |
+| **Add a skill**                        | `src/data/translations.jsx` → `skillGroups`                      |
+| **Add a new section**                  | Create a file in `src/components/sections/`, import in `App.jsx` |
+| **Add a 3rd language** (e.g., Arabic)  | Duplicate a block in `translations.jsx`                          |
+| **Change a specific section's layout** | `src/components/sections/<Name>.jsx`                             |
+
+**No more 1500-line monster files.** Each file has one job.
 
 ---
 
@@ -110,15 +188,15 @@ cd projet
 npm install
 
 # 3. Add your assets to /public
-#    - profil.png   (your photo)
-#    - cv-en.pdf    (English CV)
-#    - cv-fr.pdf    (French CV)
+#    - profil.png    (your photo, square crop works best)
+#    - cv-en.pdf     (English CV)
+#    - cv-fr.pdf     (French CV)
 
 # 4. Start dev server
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) — the site is live with hot reload.
+Open [http://localhost:5173](http://localhost:5173) — the site runs with hot reload.
 
 ### Build for production
 
@@ -131,24 +209,29 @@ npm run preview    # serves the production build locally
 
 ## 📦 Deployment (GitHub Pages)
 
-The project is pre-configured for **GitHub Pages** deployment using the `gh-pages` package.
+The project is pre-configured for **GitHub Pages** using the `gh-pages` package.
 
 ### One-time setup
 
-Update `vite.config.js` with your repo name:
+**1. Update `vite.config.js`** with your repo name:
 
 ```js
 export default defineConfig({
   plugins: [react()],
-  base: "/projet/", // ← your GitHub repo name
+  base: "/projet/", // ← your exact GitHub repo name
 });
 ```
 
-Update `package.json`:
+**2. Update `package.json`** with the `homepage` field:
 
 ```json
 "homepage": "https://aminemtar.github.io/projet"
 ```
+
+**3. In GitHub → Settings → Pages**, set:
+
+- **Source:** Deploy from a branch
+- **Branch:** `gh-pages` · `/ (root)`
 
 ### Deploy
 
@@ -162,40 +245,16 @@ This automatically:
 2. Publishes `/dist` to the `gh-pages` branch
 3. Your site goes live at `https://aminemtar.github.io/projet`
 
-> ⚙️ **First time only:** In GitHub → Settings → Pages, set **Source** to `gh-pages` branch, `/ (root)` folder.
-
----
-
-## 📂 Project Structure
-
-```
-projet/
-├── public/
-│   ├── profil.png         # Profile photo
-│   ├── cv-en.pdf          # English CV
-│   └── cv-fr.pdf          # French CV
-├── src/
-│   ├── App.jsx            # Main component (all sections)
-│   ├── App.css            # Complete stylesheet
-│   └── main.jsx           # React entry point
-├── index.html             # HTML shell
-├── vite.config.js         # Vite config (base path for GH Pages)
-├── package.json
-└── README.md
-```
-
-**Everything lives in `App.jsx`** — no scattered files. This keeps the codebase easy to maintain, deploy, and understand at a glance.
-
 ---
 
 ## 🌐 Customization Guide
 
-All the content you might want to change is at the **top of `src/App.jsx`** in two clearly-marked blocks:
+### 📝 Updating personal info
 
-### 1. Static info — `INFO` constant
+Edit `src/data/info.js`:
 
 ```js
-const INFO = {
+export const INFO = {
   firstName: "Mohamed Amine",
   lastName: "Mtar",
   photo: `${import.meta.env.BASE_URL}profil.png`,
@@ -207,28 +266,37 @@ const INFO = {
 };
 ```
 
-### 2. Translations — `translations` object
+### 🌍 Updating translations
 
-Edit both `en` and `fr` blocks to update any text on the site:
+Edit `src/data/translations.jsx`. Each language has the same structure:
 
-```js
-const translations = {
+```jsx
+export const translations = {
   en: {
-    nav: { work: "Work" /* ... */ },
+    nav: { work: "Work" },
     hero: {
       /* ... */
-    },
+    } /* ... */,
   },
   fr: {
-    nav: { work: "Projets" /* ... */ },
+    nav: { work: "Projets" },
     hero: {
       /* ... */
-    },
+    } /* ... */,
   },
 };
 ```
 
-### 3. Colors — `:root` in `App.css`
+**To add a new language** (e.g., Arabic):
+
+1. Duplicate the `en` block
+2. Rename to `ar`
+3. Translate the values
+4. Update `LangToggle.jsx` to show 3 options
+
+### 🎨 Changing colors
+
+Edit `src/App.css` → the `:root` block:
 
 ```css
 :root {
@@ -240,7 +308,36 @@ const translations = {
 }
 ```
 
-Change these 5 values → the entire theme adapts.
+These 5 variables control the entire theme.
+
+### 🎯 Adding a project
+
+Add a new entry to `projects` in **both** `en` and `fr` blocks:
+
+```js
+{
+  title: 'My New Project',
+  emoji: '🚀',
+  date: '2025',
+  type: 'Personal',
+  text: 'Description of the project...',
+  tags: ['React', 'Node.js'],
+  tint: 'linear-gradient(135deg, #e0f2ff 0%, #d8e4ff 100%)',
+}
+```
+
+### 📊 Adding a skill to the marquee
+
+Edit `src/components/sections/Marquee.jsx`:
+
+```jsx
+const TECH = [
+  { name: "Flutter", slug: "flutter" },
+  { name: "YourTech", slug: "slug-from-simpleicons" }, // ← add here
+];
+```
+
+Find slugs on [simpleicons.org](https://simpleicons.org) — the slug is the last part of the URL.
 
 ---
 
@@ -262,20 +359,22 @@ Change these 5 values → the entire theme adapts.
 
 - 📱 **Shipped 6 production mobile apps** — 2 published on Google Play
 - 🧠 **AI integration** in mobile apps — OCR, content analysis, image processing
-- 🌐 **Full-stack capability** — from mobile UI to Node.js/Spring Boot backends
+- 🌐 **Full-stack capability** — from mobile UI to Node.js / Spring Boot backends
 - 🏗 **Clean Architecture** and **Scrum** in every professional context
 - 🚀 **CI/CD mindset** — Jenkins, Docker, Grafana, Prometheus
 - 🗣 **Trilingual** — Arabic (native), French (professional), English (professional)
+- 🧩 **Code quality** — modular architecture, reusable hooks, single source of truth
 
 ---
 
 ## 🧪 Performance & Quality
 
-- ✅ **Lighthouse-optimized** structure (no heavy frameworks)
 - ✅ **Semantic HTML** — accessible nav, buttons with `aria-label`
 - ✅ **Zero external animation libraries** — all CSS-based
+- ✅ **Zero icon packages** — inline SVGs + Simple Icons CDN
 - ✅ **Optimized bundle** — under 250 KB gzipped
-- ✅ **No dependencies** beyond React + Vite
+- ✅ **Modular architecture** — one file per concern
+- ✅ **No runtime dependencies** beyond React + Vite
 
 ---
 
