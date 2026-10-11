@@ -384,13 +384,13 @@ Find slugs on [simpleicons.org](https://simpleicons.org) — the slug is the las
 
 **Let's build something together.**
 
-|             |                                                                    |
-| ----------- | ------------------------------------------------------------------ |
-| 📧 Email    | [mtar.mohamedamine@gmail.com](mailto:mtar.mohamedamine@gmail.com)  |
-| 📞 Phone    | [+216 22 826 286](tel:+21622826286)                                |
-| 💼 LinkedIn | [mohamedamine-mtar](https://www.linkedin.com/in/mohamedamine-mtar) |
-| 🐙 GitHub   | [@aminemtar](https://github.com/aminemtar)                         |
-| 📍 Location | Tunis, Tunisia — open to France & remote                           |
+|             |                                                                      |
+| ----------- | -------------------------------------------------------------------- |
+| 📧 Email    | [mtar.mohamedamine@gmail.com](mailto:mtar.mohamedamine@gmail.com)    |
+| 📞 Phone    | [+216 22 826 286](tel:+21622826286)                                  |
+| 💼 LinkedIn | [mohamedamine-mtar](https://www.linkedin.com/in/mohamed-amine-mtar/) |
+| 🐙 GitHub   | [@aminemtar](https://github.com/aminemtar)                           |
+| 📍 Location | Tunis, Tunisia — open to France & remote                             |
 
 </div>
 

@@ -14,7 +14,9 @@ export const Education = () => {
                     <span className="section-tag">{t.sections.eduTag}</span>
                     <h2 className="section-title">{t.sections.eduTitle}</h2>
                     <div className="edu-entry" style={{ marginBottom: '1rem' }}>
-                        <div className="edu-badge">🎓</div>
+                        <div className="edu-badge">
+                            <img src={`${import.meta.env.BASE_URL}esprit.jpeg`} alt="ESPRIT" />
+                        </div>
                         <div>
                             <h3 className="edu-school">{esprit.school}</h3>
                             <p className="edu-program">{esprit.program}</p>

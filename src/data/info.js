@@ -21,5 +21,5 @@ export const INFO = {
   phone: '+216 22 826 286',
   phoneHref: 'tel:+21622826286',
   github: 'https://github.com/aminemtar',
-  linkedin: 'https://www.linkedin.com/in/mohamedamine-mtar',
+  linkedin: 'https://www.linkedin.com/in/mohamed-amine-mtar/',
 };
