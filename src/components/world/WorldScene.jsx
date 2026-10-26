@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { locations } from './locations';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 export default function WorldScene({ destination, blocked, controls, onNear, onArrive, onFail, lang, reduced }) {
   const host=useRef(null), live=useRef({});
@@ -10,15 +11,21 @@ export default function WorldScene({ destination, blocked, controls, onNear, onA
     const el=host.current;
     let renderer;
     try{renderer=new THREE.WebGLRenderer({antialias:true});}catch{queueMicrotask(()=>{setUnavailable(true);live.current.onFail();});return;}
+    renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.25;
     renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.setClearColor(0x101c32);
     renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;el.appendChild(renderer.domElement);
-    const scene=new THREE.Scene();scene.fog=new THREE.Fog(0x101c32,36,75);
+    const scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x080e20,.012);
+    renderer.setClearColor(0x080e20);
+    const pmrem=new THREE.PMREMGenerator(renderer),room=new RoomEnvironment();
+    const environment=pmrem.fromScene(room,.04);scene.environment=environment.texture;room.dispose();pmrem.dispose();
     const camera=new THREE.PerspectiveCamera(42,1,.1,100);camera.position.set(18,24,25);
     scene.add(new THREE.HemisphereLight(0xc8eaff,0x536172,2.5));
     const sun=new THREE.DirectionalLight(0xffe7ce,3);sun.position.set(8,22,10);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);Object.assign(sun.shadow.camera,{left:-24,right:24,top:24,bottom:-24});scene.add(sun);
     const materials=[];const geometries=[];const textures=[];
     const mat=(c)=>{const m=new THREE.MeshStandardMaterial({color:c,roughness:.65});materials.push(m);return m;};
-    const grass=mat(0x31565b),path=mat(0x71828c),navy=mat(0x182d48),white=mat(0xdce8ec),wood=mat(0x604b44);
+    const physical=(color,metalness,roughness)=>{const m=new THREE.MeshPhysicalMaterial({color,metalness,roughness,clearcoat:1,clearcoatRoughness:.15});materials.push(m);return m;};
+    const grass=physical(0x132137,.65,.3),path=physical(0x263a53,.7,.25),navy=physical(0x111c32,.75,.24),white=physical(0xc6d9e7,.65,.22),wood=physical(0x526987,.8,.25);
+    const glow=c=>{const m=new THREE.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:2,roughness:.25});materials.push(m);return m;};
     const mesh=(g,m,x,y,z,parent=scene)=>{geometries.push(g);const o=new THREE.Mesh(g,m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o;};
     const box=(w,h,d,m,x,y,z,p)=>mesh(new THREE.BoxGeometry(w,h,d),m,x,y,z,p);
     mesh(new THREE.CylinderGeometry(22,20,2.8,10),navy,0,-1.7,0);
@@ -31,9 +38,16 @@ export default function WorldScene({ destination, blocked, controls, onNear, onA
       const c=document.createElement('canvas');c.width=768;c.height=128;const ctx=c.getContext('2d');ctx.fillStyle='#14253a';ctx.fillRect(0,0,768,128);ctx.font='600 43px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=color;ctx.fillText(text,384,64);
       const texture=new THREE.CanvasTexture(c);textures.push(texture);const m=new THREE.SpriteMaterial({map:texture});materials.push(m);const sprite=new THREE.Sprite(m);sprite.position.set(x,y,z);sprite.scale.set(5.8,.97,1);scene.add(sprite);
     }
+    // A monumental orbit turns the campus into a sculptural career universe.
+    const sculptures=[];
+    [24,27].forEach((r,i)=>{const ring=mesh(new THREE.TorusGeometry(r,.055,8,160),glow(i?0x4068bd:0x77d9ff),0,3,0);ring.rotation.set(Math.PI/2-.22*i,.35*i,.15);sculptures.push(ring);});
+    const starPositions=[];for(let i=0;i<380;i++){const a=i*2.39996,r=36+(i%19)*2;starPositions.push(Math.cos(a)*r,8+(i%31)*1.3,Math.sin(a)*r);}
+    const starsGeometry=new THREE.BufferGeometry();starsGeometry.setAttribute('position',new THREE.Float32BufferAttribute(starPositions,3));geometries.push(starsGeometry);const starsMaterial=new THREE.PointsMaterial({color:0x9abddd,size:.075,transparent:true,opacity:.7});materials.push(starsMaterial);scene.add(new THREE.Points(starsGeometry,starsMaterial));
+    // Edge lights, chrome spires and levitating satellite pavilions.
+    for(let i=0;i<48;i++){const a=i/48*Math.PI*2;const light=box(.11,.08,.6,glow(0x59baff),Math.sin(a)*21.2,.08,Math.cos(a)*21.2);light.rotation.y=a;}
     const beacons=[];
     locations.forEach((loc,index)=>{
-      const accent=mat(loc.color);const station=new THREE.Group();station.position.set(loc.x,0,loc.z);scene.add(station);
+      const accent=physical(loc.color,.55,.2);const station=new THREE.Group();station.position.set(loc.x,0,loc.z);scene.add(station);
       mesh(new THREE.CylinderGeometry(2.8,2.9,.25,32),white,0,.12,0,station);
       const beacon=mesh(new THREE.TorusGeometry(2.55,.055,8,64),accent,0,.3,0,station);beacon.rotation.x=-Math.PI/2;beacons.push(beacon);
       if(loc.id==='work'){
@@ -49,11 +63,24 @@ export default function WorldScene({ destination, blocked, controls, onNear, onA
       }else{
         mesh(new THREE.CylinderGeometry(.8,1.2,.8,8),navy,0,.65,0,station);mesh(new THREE.IcosahedronGeometry(.85,0),accent,0,1.9,0,station);
       }
+      // Architectural portal: layered metal ribs with luminous edges.
+      const portal=mesh(new THREE.TorusGeometry(3,.11,10,80,Math.PI),white,0,.35,-1,station);
+      const inner=mesh(new THREE.TorusGeometry(2.8,.035,8,80,Math.PI),glow(loc.color),0,.35,-.96,station);
+      portal.rotation.z=0;inner.rotation.z=0;
+      [-3,3].forEach(x=>{box(.14,3.2,.14,white,x,1.8,-1,station);box(.055,2.9,.06,glow(loc.color),x,1.8,-.9,station);});
+      const crystal=mesh(new THREE.OctahedronGeometry(.28),glow(loc.color),0,5.1,0,station);sculptures.push(crystal);
       label(`${loc.icon}  ${loc[lang]}`,loc.x,4.15,loc.z);
       if(index===0)label('MOHAMED AMINE MTAR',0,5.3,0,'#68d5ff');
     });
-    // Trees sit outside all walking paths.
-    for(let i=0;i<23;i++){const a=i/23*Math.PI*2,r=18+(i%3)*.55,x=Math.sin(a)*r,z=Math.cos(a)*r;box(.22,1.2,.22,wood,x,.6,z);mesh(new THREE.ConeGeometry(.75,2.5,6),mat(i%2?0x448579:0x397469),x,2,z);}
+    // A luminous skyline frames the discoveries without hiding the paths.
+    for(let i=0;i<18;i++){const a=i/18*Math.PI*2,r=19.5,x=Math.sin(a)*r,z=Math.cos(a)*r,h=1.5+(i%4)*.7;const tower=box(.5,h,.5,white,x,h/2,z);tower.rotation.y=a;box(.08,h*.8,.08,glow(0x549cdb),x,h/2,z+.27);}
+    const billboards=[
+      ['SMART CONSEIL','6 MOBILE APPS · FLUTTER + ANDROID',-9,-6,'smart.png'],
+      ['ORANGE DIGITAL CENTER','iOS · ANDROID · WEB · NODE.JS',-9,7,'orange.png'],
+      ['FLUTTER / SWIFTUI / KOTLIN','MOBILE ENGINEERING',8,-7,null],
+      ['ESPRIT · 2024',lang==='fr'?'INGÉNIEUR · MENTION EXCELLENTE':'ENGINEERING · DISTINCTION',9,6,'esprit.jpeg'],
+    ];
+    billboards.forEach(([name,sub,x,z,image])=>{label(name,x,6.7,z,'#ffffff');label(sub,x,5.8,z,'#92cfff');if(image){const tex=new THREE.TextureLoader().load(`${import.meta.env.BASE_URL}${image}`);tex.colorSpace=THREE.SRGBColorSpace;textures.push(tex);const m=new THREE.SpriteMaterial({map:tex});materials.push(m);const logo=new THREE.Sprite(m);logo.scale.set(1.5,1.5,1);logo.position.set(x-3,6.3,z);scene.add(logo);}});
     const player=new THREE.Group();player.position.set(0,0,5);scene.add(player);const coat=mat(0x4595ff),skin=mat(0xf1c5a0);
     box(.65,.85,.4,coat,0,1,0,player);mesh(new THREE.SphereGeometry(.28,16,12),skin,0,1.7,0,player);const legs=[box(.22,.6,.25,navy,-.2,.35,0,player),box(.22,.6,.25,navy,.2,.35,0,player)];box(.8,.16,.65,navy,0,1.94,0,player);
     const keys=new Set();let goal=null,lastDestination=null,near=null,frame,last=0,clock=0;
@@ -65,7 +92,7 @@ export default function WorldScene({ destination, blocked, controls, onNear, onA
     renderer.domElement.addEventListener('pointerdown',click);
     const resize=()=>{renderer.setSize(el.clientWidth,el.clientHeight);camera.aspect=el.clientWidth/el.clientHeight;camera.updateProjectionMatrix();};const ro=new ResizeObserver(resize);ro.observe(el);resize();
     const look=new THREE.Vector3(),desiredCamera=new THREE.Vector3();
-    function tick(time){frame=requestAnimationFrame(tick);const dt=last?Math.min((time-last)/1000,.05):0;last=time;if(document.hidden)return;clock+=dt;
+    function tick(time){frame=requestAnimationFrame(tick);const dt=last?Math.min((time-last)/1000,.05):0;last=time;if(document.hidden)return;if(!live.current.reduced)clock+=dt;sculptures.forEach((o,i)=>{if(!live.current.reduced){if(i<2)o.rotation.z=clock*.025*(i?1:-1);else{o.rotation.y=clock*.5;o.position.y=5.1+Math.sin(clock+i)*.18;}}});
       const current=live.current;
       if(current.destination!==lastDestination){lastDestination=current.destination;const loc=locations.find(l=>l.id===current.destination?.id);if(loc)goal=new THREE.Vector3(loc.x,0,loc.z+2);}
       let dx=0,dz=0;
@@ -85,7 +112,7 @@ export default function WorldScene({ destination, blocked, controls, onNear, onA
     }
     frame=requestAnimationFrame(tick);
     const lost=e=>{e.preventDefault();setUnavailable(true);live.current.onFail();};renderer.domElement.addEventListener('webglcontextlost',lost);
-    return()=>{cancelAnimationFrame(frame);ro.disconnect();window.removeEventListener('keydown',down);window.removeEventListener('keyup',up);window.removeEventListener('blur',clear);renderer.domElement.removeEventListener('pointerdown',click);geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());renderer.dispose();renderer.domElement.remove();};
+    return()=>{cancelAnimationFrame(frame);ro.disconnect();window.removeEventListener('keydown',down);window.removeEventListener('keyup',up);window.removeEventListener('blur',clear);renderer.domElement.removeEventListener('pointerdown',click);geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());environment.dispose();renderer.dispose();renderer.domElement.remove();};
   },[lang]);
   return <div className="world-render" ref={host} aria-hidden="true">{unavailable&&<p>3D unavailable — use the accessible portfolio.</p>}</div>;
 }
