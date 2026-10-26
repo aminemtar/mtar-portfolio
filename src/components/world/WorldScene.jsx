@@ -25,8 +25,9 @@ export default function WorldScene({ destination, blocked, controls, onNear, onA
   box(6,.035,56,asphalt,0,.03,0);
   for(let z=-26;z<28;z+=3)box(.12,.02,1.2,paint,0,.06,z);
   locations.forEach(l=>{box(19,.04,4.6,asphalt,l.x/2,.04,l.z+4.7);box(9,.14,6,pavement,l.x,.1,l.z);for(let x=2;x<15;x+=3)box(1,.02,.12,paint,Math.sign(l.x)*x,.08,l.z+4.7);for(let i=0;i<3;i++)box(.1,.02,2.2,paint,l.x-2+i*2,.08,l.z+4.7);});
-  function label(text,x,y,z,width=7,color='#e4f4ff'){
-   const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=128;const ctx=canvas.getContext('2d');ctx.fillStyle='#11233a';ctx.fillRect(0,0,1024,128);ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='600 40px sans-serif';ctx.fillStyle=color;ctx.fillText(text,512,64,980);const tex=new THREE.CanvasTexture(canvas);tex.colorSpace=THREE.SRGBColorSpace;textures.push(tex);const mat=new THREE.SpriteMaterial({map:tex});materials.push(mat);const sprite=new THREE.Sprite(mat);sprite.position.set(x,y,z);sprite.scale.set(width,width/8,1);scene.add(sprite);
+  const informationBoards=[];
+  function label(text,x,y,z,width=7,color='#e4f4ff',parent=scene){
+   const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=128;const ctx=canvas.getContext('2d');ctx.fillStyle='#11233a';ctx.fillRect(0,0,1024,128);ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='600 40px sans-serif';ctx.fillStyle=color;ctx.fillText(text,512,64,980);const tex=new THREE.CanvasTexture(canvas);tex.colorSpace=THREE.SRGBColorSpace;textures.push(tex);const mat=new THREE.SpriteMaterial({map:tex,depthTest:false,depthWrite:false,toneMapped:false});materials.push(mat);const sprite=new THREE.Sprite(mat);sprite.position.set(x,y,z);sprite.scale.set(width,width/8,1);sprite.renderOrder=100;parent.add(sprite);
   }
   const beacons=[];
   locations.forEach((l,index)=>{
@@ -37,11 +38,26 @@ export default function WorldScene({ destination, blocked, controls, onNear, onA
    for(let floor=1;floor<height;floor+=1.4){box(6.7,.12,4.4,chrome,0,floor,0,building);for(let x=-2.5;x<=2.5;x+=1.25)box(.045,1,.09,neon,x,floor+.5,2.2,building);}
    box(7,.22,4.6,accent,0,height+.3,0,building);box(7.3,.1,4.9,neon,0,height+.45,0,building);
    box(1.2,2,.12,glass,0,1.1,2.3,building);box(2.5,.12,1.7,accent,0,2.3,2.8,building);
-   if(l.id==='work'){[-2,2].forEach(x=>{const tex=new THREE.TextureLoader().load(`${import.meta.env.BASE_URL}projects/${x<0?'clothy-1.jpeg':'artie-1.jpg'}`);tex.colorSpace=THREE.SRGBColorSpace;textures.push(tex);const m=new THREE.MeshStandardMaterial({map:tex,emissive:0xffffff,emissiveMap:tex,emissiveIntensity:.3});materials.push(m);mesh(new THREE.PlaneGeometry(1.4,2.2),m,x,2.7,2.23,building);});}
-   if(l.id==='about'){const tex=new THREE.TextureLoader().load(`${import.meta.env.BASE_URL}profil.png`);tex.colorSpace=THREE.SRGBColorSpace;textures.push(tex);const m=new THREE.MeshStandardMaterial({map:tex});materials.push(m);mesh(new THREE.PlaneGeometry(1.7,2),m,-1.8,2.5,2.24,building);}
+   // One camera-facing information board per building, lifted clear of the roof.
+   // Depth testing is disabled only for information, so city geometry cannot hide it.
+   const board=new THREE.Group();board.position.set(l.x,height+3.6,l.z);scene.add(board);informationBoards.push(board);
+   label(`${l.icon} / ${l[lang]}`,0,1.25,0,7,'#e4f4ff',board);
+   label(l.headline,0,.35,0,7,'#ffffff',board);
+   label(l.summary,0,-.5,0,7,'#9ddcff',board);
+   const photo=(url,x,y,w,h)=>{
+    const texture=new THREE.TextureLoader().load(url,loaded=>{
+     const ratio=loaded.image.width/loaded.image.height;
+     const fit=Math.min(w/ratio,h);sprite.scale.set(fit*ratio,fit,1);
+    });texture.colorSpace=THREE.SRGBColorSpace;textures.push(texture);
+    const m=new THREE.SpriteMaterial({map:texture,depthTest:false,depthWrite:false,toneMapped:false});materials.push(m);
+    const sprite=new THREE.Sprite(m);sprite.position.set(x,y,.02);sprite.scale.set(w,h,1);sprite.renderOrder=101;board.add(sprite);
+   };
+   if(l.id==='work'){
+    photo(`${import.meta.env.BASE_URL}projects/clothy-1.jpeg`,-1.2,-2.5,2,2.8);
+    photo(`${import.meta.env.BASE_URL}projects/artie-1.jpg`,1.2,-2.5,2,2.8);
+   }
+   if(l.id==='about')photo(`${import.meta.env.BASE_URL}profil.png`,0,-2.5,2.3,2.8);
    if(l.id==='contact'){const ring=mesh(new THREE.TorusGeometry(1.3,.13,10,48),neon,0,height+2,0,building);ring.rotation.y=.4;}
-   label(`${l.icon} / ${l[lang]}`,l.x,height+1.35,l.z,7);
-   label(l.headline,l.x,3.4,l.z+2.4,6.2,'#ffffff');label(l.summary,l.x,2.7,l.z+2.5,6.2,'#9ddcff');
    const beacon=mesh(new THREE.TorusGeometry(1.4,.05,8,48),neon,l.x,.13,l.z+4.7);beacon.rotation.x=-Math.PI/2;beacons.push(beacon);label('P',l.x,.2,l.z+4.7,1.1);
    // Street lamps and trees frame each block; the roadway remains clear.
    [-4.5,4.5].forEach(x=>{box(.1,4,.1,chrome,l.x+x,2,l.z+2.5);box(.7,.12,.5,neon,l.x+x,4,l.z+2.5);mesh(new THREE.CylinderGeometry(.13,.2,1.4,8),metal,l.x+x,.7,l.z-2.3);mesh(new THREE.IcosahedronGeometry(.9,1),grass,l.x+x,2,l.z-2.3);});
@@ -69,7 +85,13 @@ export default function WorldScene({ destination, blocked, controls, onNear, onA
    const closest=locations.find(l=>Math.hypot(l.x-car.x,l.z+4.7-car.z)<3.3&&Math.abs(car.speed)<3)?.id||null;if(closest!==near){near=closest;c.onNear(near);}
    const viewing=c.blocked&&!c.destination&&car.z===spawn.z;
    if(viewing){targetCamera.set(27,32,41);look.set(0,0,0);}else{targetCamera.set(car.x-Math.sin(car.heading)*12,10,car.z-Math.cos(car.heading)*12);look.set(car.x+Math.sin(car.heading)*4,1,car.z+Math.cos(car.heading)*4);}
-   camera.position.lerp(targetCamera,c.reduced?1:1-Math.exp(-dt*3));camera.lookAt(look);renderer.render(scene,camera);
+   camera.position.lerp(targetCamera,c.reduced?1:1-Math.exp(-dt*3));camera.lookAt(look);
+   informationBoards.forEach(board=>{
+    board.quaternion.copy(camera.quaternion);
+    // Keep distant cards readable without letting nearby cards fill the screen.
+    const scale=THREE.MathUtils.clamp(camera.position.distanceTo(board.position)/30,.85,1.65);
+    board.scale.setScalar(scale);
+   });renderer.render(scene,camera);
    report+=dt;if(report>.1){report=0;c.onDrive?.({x:car.x,z:car.z,heading:car.heading,speed:Math.abs(car.speed)*3.6,autopilot:route.length>0});}
   }
   frame=requestAnimationFrame(tick);const lost=e=>{e.preventDefault();setFailed(true);live.current.onFail();};renderer.domElement.addEventListener('webglcontextlost',lost);
