@@ -2,13 +2,13 @@ import React from 'react';
 import './App.css';
 
 // Layout
-import { CursorHalo } from './components/layout/CursorHalo';
+import { Studio } from './components/studio/Studio';
 import { ProgressBar } from './components/layout/ProgressBar';
-import { Navbar } from './components/layout/Navbar';
+
 import { Footer } from './components/layout/Footer';
 
 // Sections
-import { Hero } from './components/sections/Hero';
+
 import { Marquee } from './components/sections/Marquee';
 import { Projects } from './components/sections/Projects';
 import { Skills } from './components/sections/Skills';
@@ -23,10 +23,8 @@ function App() {
   return (
     <LanguageProvider>
       <div className="site">
-        <CursorHalo />
         <ProgressBar />
-        <Navbar />
-        <Hero />
+        <Studio />
         <Marquee />
         <Projects />
         <Skills />

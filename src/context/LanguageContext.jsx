@@ -12,7 +12,7 @@ export const useT = () => useContext(LangCtx);
 export const LanguageProvider = ({ children }) => {
     const [lang, setLang] = useState(() => {
         const saved = typeof window !== 'undefined' && localStorage.getItem('portfolio-lang');
-        if (saved) return saved;
+        if (saved === 'en' || saved === 'fr') return saved;
         const nav = typeof navigator !== 'undefined' ? navigator.language : 'en';
         return nav.startsWith('fr') ? 'fr' : 'en';
     });
