@@ -412,26 +412,26 @@ If you find this portfolio useful for your own, feel free to **fork it and make 
 
 </div>
 
-## Playable portfolio world
+## Drivable portfolio city
 
-The entry point is now a third-person Three.js island. Enter the world, then use
-WASD, ZQSD or arrow keys to walk. Click/tap the ground to walk to a point, or use
-the on-screen direction buttons. At a glowing landmark, press **E** or click the
-interaction prompt to open a discovery. Escape closes it.
+Start your engine to drive a sports coupe through a city built around Mohamed
+Amine Mtar’s profile. Six buildings reveal the profile, projects, technology,
+experience, education and contact details. Building signs show key evidence
+outside, and parking near an entrance unlocks the discovery button (**E**).
 
-Six landmarks reveal the profile, real projects (including screenshots and store
-links), skills, career, education and contact information. The map buttons walk
-the avatar to a landmark. A guided route links the landmarks in order; read each
-discovery and choose the next stop. The counter records discoveries for the
-current visit. EN/FR is supported. The accessible portfolio button provides the
-standard content layout; unavailable WebGL automatically uses that layout.
+- **W / Z / Up**: accelerate. **S / Down**: reverse.
+- **A / Q / Left** and **D / Right**: steer. **Space**: brake.
+- Touch controls support driving on phones. Map destinations and ground taps
+  start an automatic drive to a building. Manual input cancels autopilot.
+- The guided drive links buildings; the minimap shows your car and discoveries.
+- Reset car returns to the starting avenue. EN/FR and the classic view remain.
 
-The world uses procedural geometry and local content. No model downloads or API
-keys are required. The canvas is lazy-loaded, pixel ratio is capped and GPU
-resources are disposed when leaving. Reduced-motion preferences remove walking
-limb animation and camera smoothing.
+The Three.js city includes local procedural buildings, storefront screenshots,
+a painted coupe with alloy wheels, road markings, parking bays, street lighting,
+a follow camera, speedometer, acceleration, drag, reverse and building collisions.
+No external model downloads or API keys are required.
 
-Validation: `npm run build`, `npm run lint`, `git diff --check`. Browser execution
-still requires a local visual check: the workspace Chromium download was blocked
-and did not produce a usable browser. Check keyboard/touch movement, six discovery
-panels, EN/FR, guided navigation and narrow mobile layouts before deployment.
+Validation: production build, lint (existing warnings), driving simulation checks
+for acceleration, steering, braking, reverse, collisions and all six GPS routes.
+Browser gameplay and visual QA remain unverified because a usable Chromium
+could not be downloaded in this workspace.
