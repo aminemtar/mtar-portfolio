@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.css';
 
 // Layout
-import { Studio } from './components/studio/Studio';
+import { World } from './components/world/World';
+import { Navbar } from './components/layout/Navbar';
 import { ProgressBar } from './components/layout/ProgressBar';
 
 import { Footer } from './components/layout/Footer';
@@ -20,11 +21,14 @@ import { Contact } from './components/sections/Contact';
 import { LanguageProvider } from './context/LanguageContext';
 
 function App() {
+  const [browse, setBrowse] = useState(false);
   return (
     <LanguageProvider>
       <div className="site">
+        {!browse ? <World onBrowse={() => setBrowse(true)} /> : <>
+        <Navbar />
+        <div style={{ height: 100 }} />
         <ProgressBar />
-        <Studio />
         <Marquee />
         <Projects />
         <Skills />
@@ -32,6 +36,8 @@ function App() {
         <Education />
         <Contact />
         <Footer />
+        <button className="browse-back" onClick={() => setBrowse(false)}>← 3D World</button>
+        </>}
       </div>
     </LanguageProvider>
   );

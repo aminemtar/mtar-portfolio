@@ -411,3 +411,27 @@ If you find this portfolio useful for your own, feel free to **fork it and make 
 **Built with ❤️, React and lots of ☕ in Tunis**
 
 </div>
+
+## Playable portfolio world
+
+The entry point is now a third-person Three.js island. Enter the world, then use
+WASD, ZQSD or arrow keys to walk. Click/tap the ground to walk to a point, or use
+the on-screen direction buttons. At a glowing landmark, press **E** or click the
+interaction prompt to open a discovery. Escape closes it.
+
+Six landmarks reveal the profile, real projects (including screenshots and store
+links), skills, career, education and contact information. The map buttons walk
+the avatar to a landmark. A guided route links the landmarks in order; read each
+discovery and choose the next stop. The counter records discoveries for the
+current visit. EN/FR is supported. The accessible portfolio button provides the
+standard content layout; unavailable WebGL automatically uses that layout.
+
+The world uses procedural geometry and local content. No model downloads or API
+keys are required. The canvas is lazy-loaded, pixel ratio is capped and GPU
+resources are disposed when leaving. Reduced-motion preferences remove walking
+limb animation and camera smoothing.
+
+Validation: `npm run build`, `npm run lint`, `git diff --check`. Browser execution
+still requires a local visual check: the workspace Chromium download was blocked
+and did not produce a usable browser. Check keyboard/touch movement, six discovery
+panels, EN/FR, guided navigation and narrow mobile layouts before deployment.
