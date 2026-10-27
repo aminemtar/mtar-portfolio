@@ -25,7 +25,7 @@ export function stepCar(car, throttle, steer, brake, dt, buildings) {
   }
 
   speed = Math.max(-maxReverse, Math.min(maxForward, speed));
-  if (Math.abs(speed) < 0.06) speed = 0;
+  // Only snap to rest when the driver is NOT accelerating.\n  // Otherwise high-refresh-rate phones (120 Hz) can reset speed every frame.\n  if (input === 0 && Math.abs(speed) < 0.06) speed = 0;
 
   // Steering fades at speed and requires movement, preventing spins in place.
   // A little steering at parking speed remains possible for tight city turns.
