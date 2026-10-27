@@ -11,15 +11,17 @@ export default function WorldScene({ destination, blocked, controls, onNear, onA
  useEffect(()=>{
   const el=host.current;let renderer;
   try{renderer=new THREE.WebGLRenderer({antialias:true});}catch{queueMicrotask(()=>live.current.onFail());return;}
-  renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.setClearColor(0x101d33);renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.35;renderer.shadowMap.enabled=true;el.appendChild(renderer.domElement);
-  const scene=new THREE.Scene();scene.fog=new THREE.Fog(0x101d33,48,110);
+  const isMobile=window.matchMedia('(max-width: 760px), (pointer: coarse)').matches;
+  const lowPower=isMobile || (navigator.hardwareConcurrency && navigator.hardwareConcurrency<=4);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,lowPower?1.15:1.6));renderer.setClearColor(0x101d33);renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.35;renderer.shadowMap.enabled=!lowPower;el.appendChild(renderer.domElement);
+  const scene=new THREE.Scene();scene.fog=new THREE.Fog(0x101d33,lowPower?35:48,lowPower?85:110);
   const pmrem=new THREE.PMREMGenerator(renderer),room=new RoomEnvironment(),env=pmrem.fromScene(room,.04);scene.environment=env.texture;room.dispose();pmrem.dispose();
   const camera=new THREE.PerspectiveCamera(48,1,.1,150);camera.position.set(25,32,42);
-  scene.add(new THREE.HemisphereLight(0xbde6ff,0x465568,2.8));const sun=new THREE.DirectionalLight(0xffd7a5,3.5);sun.position.set(-15,30,15);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);Object.assign(sun.shadow.camera,{left:-32,right:32,top:32,bottom:-32});scene.add(sun);
+  scene.add(new THREE.HemisphereLight(0xbde6ff,0x465568,2.8));const sun=new THREE.DirectionalLight(0xffd7a5,3.5);sun.position.set(-15,30,15);sun.castShadow=!lowPower;sun.shadow.mapSize.set(lowPower?512:1024,lowPower?512:1024);Object.assign(sun.shadow.camera,{left:-32,right:32,top:32,bottom:-32});scene.add(sun);
   const geometries=[],materials=[],textures=[];
   const material=(color,metalness=.2,roughness=.5,emissive=0)=>{const m=new THREE.MeshStandardMaterial({color,metalness,roughness,emissive,emissiveIntensity:1.2});materials.push(m);return m;};
   const asphalt=material(0x17283a),pavement=material(0x5a7185),metal=material(0x23364e,.8,.24),glass=material(0x4082a2,.65,.15),ivory=material(0xcbd9dd,.35,.3),grass=material(0x254b46),paint=material(0x97aabc),blue=material(0x268cff,.7,.2),rubber=material(0x111821),chrome=material(0xa6c4d4,.9,.18);
-  const mesh=(geo,mat,x,y,z,parent=scene)=>{geometries.push(geo);const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m;};
+  const mesh=(geo,mat,x,y,z,parent=scene)=>{geometries.push(geo);const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);m.castShadow=!lowPower;m.receiveShadow=!lowPower;parent.add(m);return m;};
   const box=(w,h,d,m,x,y,z,parent)=>mesh(new THREE.BoxGeometry(w,h,d),m,x,y,z,parent);
   box(52,1,62,metal,0,-.65,0);const ground=box(50,.3,60,grass,0,-.15,0);
   box(6,.035,56,asphalt,0,.03,0);
@@ -72,7 +74,7 @@ export default function WorldScene({ destination, blocked, controls, onNear, onA
   const clear=()=>keys.clear();const down=e=>{if(live.current.blocked||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();keys.add(e.key.toLowerCase());};const up=e=>keys.delete(e.key.toLowerCase());window.addEventListener('keydown',down);window.addEventListener('keyup',up);window.addEventListener('blur',clear);
   const setRoute=(x,z)=>{route=[{x:0,z:car.z},{x:0,z},{x,z}];};
   const ray=new THREE.Raycaster(),pointer=new THREE.Vector2();const click=e=>{if(live.current.blocked)return;const rect=el.getBoundingClientRect();pointer.set((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);ray.setFromCamera(pointer,camera);const hit=ray.intersectObject(ground)[0];if(hit){const closest=locations.reduce((a,b)=>Math.hypot(a.x-hit.point.x,a.z-hit.point.z)<Math.hypot(b.x-hit.point.x,b.z-hit.point.z)?a:b);setRoute(closest.x,closest.z+4.7);}};renderer.domElement.addEventListener('pointerdown',click);
-  const resize=()=>{renderer.setSize(el.clientWidth,el.clientHeight);camera.aspect=el.clientWidth/el.clientHeight;camera.updateProjectionMatrix();};const observer=new ResizeObserver(resize);observer.observe(el);resize();const targetCamera=new THREE.Vector3(),look=new THREE.Vector3();
+  const resize=()=>{const width=Math.max(1,el.clientWidth),height=Math.max(1,el.clientHeight);renderer.setSize(width,height,false);camera.aspect=width/height;camera.fov=isMobile?(width<420?65:59):48;camera.updateProjectionMatrix();};const observer=new ResizeObserver(resize);observer.observe(el);resize();const targetCamera=new THREE.Vector3(),look=new THREE.Vector3();
   function tick(time){frame=requestAnimationFrame(tick);const dt=last?Math.min((time-last)/1000,.05):0;last=time;if(document.hidden)return;const c=live.current;
    if(c.reset!==lastReset){car={...spawn};route=[];lastReset=c.reset;}
    if(c.destination!==lastDestination){lastDestination=c.destination;const l=locations.find(l=>l.id===c.destination?.id);if(l)setRoute(l.x,l.z+4.7);}
@@ -84,18 +86,18 @@ export default function WorldScene({ destination, blocked, controls, onNear, onA
    carMesh.position.set(car.x,0,car.z);carMesh.rotation.y=car.heading;wheels.forEach(w=>w.rotation.x+=car.speed*dt*2.7);
    const closest=locations.find(l=>Math.hypot(l.x-car.x,l.z+4.7-car.z)<3.3&&Math.abs(car.speed)<3)?.id||null;if(closest!==near){near=closest;c.onNear(near);}
    const viewing=c.blocked&&!c.destination&&car.z===spawn.z;
-   if(viewing){targetCamera.set(27,32,41);look.set(0,0,0);}else{targetCamera.set(car.x-Math.sin(car.heading)*12,10,car.z-Math.cos(car.heading)*12);look.set(car.x+Math.sin(car.heading)*4,1,car.z+Math.cos(car.heading)*4);}
+   if(viewing){targetCamera.set(isMobile?24:27,isMobile?38:32,isMobile?48:41);look.set(0,0,0);}else{const follow=isMobile?17:12;targetCamera.set(car.x-Math.sin(car.heading)*follow,isMobile?14:10,car.z-Math.cos(car.heading)*follow);look.set(car.x+Math.sin(car.heading)*(isMobile?6:4),1,car.z+Math.cos(car.heading)*(isMobile?6:4));}
    camera.position.lerp(targetCamera,c.reduced?1:1-Math.exp(-dt*3));camera.lookAt(look);
    informationBoards.forEach(board=>{
     board.quaternion.copy(camera.quaternion);
     // Keep distant cards readable without letting nearby cards fill the screen.
-    const scale=THREE.MathUtils.clamp(camera.position.distanceTo(board.position)/30,.85,1.65);
+    const scale=THREE.MathUtils.clamp(camera.position.distanceTo(board.position)/(isMobile?39:30),isMobile?.65:.85,isMobile?1.2:1.65);
     board.scale.setScalar(scale);
    });renderer.render(scene,camera);
    report+=dt;if(report>.1){report=0;c.onDrive?.({x:car.x,z:car.z,heading:car.heading,speed:Math.abs(car.speed)*3.6,autopilot:route.length>0});}
   }
   frame=requestAnimationFrame(tick);const lost=e=>{e.preventDefault();setFailed(true);live.current.onFail();};renderer.domElement.addEventListener('webglcontextlost',lost);
-  return()=>{cancelAnimationFrame(frame);observer.disconnect();window.removeEventListener('keydown',down);window.removeEventListener('keyup',up);window.removeEventListener('blur',clear);geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());env.dispose();renderer.dispose();renderer.domElement.remove();};
+  return()=>{cancelAnimationFrame(frame);observer.disconnect();window.removeEventListener('keydown',down);window.removeEventListener('keyup',up);window.removeEventListener('blur',clear);geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());env.dispose();renderer.dispose();renderer.domElement.removeEventListener('pointerdown',click);renderer.domElement.removeEventListener('webglcontextlost',lost);renderer.domElement.remove();};
  },[lang]);
  return <div className="world-render" ref={host} aria-hidden="true">{failed&&<p>3D unavailable</p>}</div>;
 }
