@@ -1,8 +1,10 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
-// https://vite.dev/config/
+// GitHub Pages uses /mtar-portfolio/; Netlify deploys at the domain root.
+const isNetlify = process.env.NETLIFY === 'true'
+
 export default defineConfig({
   plugins: [react()],
-  base: '/mtar-portfolio/',
+  base: isNetlify ? '/' : '/mtar-portfolio/',
 })
