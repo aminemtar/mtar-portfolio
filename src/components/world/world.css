@@ -10,3 +10,48 @@
 /* Driving city HUD. */
 .driving-dashboard{position:absolute;right:25px;bottom:120px;display:flex;align-items:end;gap:12px;z-index:3}.city-minimap{width:140px;height:165px;border:1px solid #9cc7ed44;background:#0e1a2ddc;border-radius:14px;padding:7px;box-shadow:0 15px 40px #0004}.city-minimap svg{width:100%;height:100%}.speed-readout{background:#0d2034e8;border:1px solid #9cc7ed30;border-radius:12px;padding:14px;min-width:96px}.speed-readout strong{display:block;color:#bde9ff;font-size:40px;line-height:1;font-variant-numeric:tabular-nums;font-weight:400}.speed-readout>span{display:block;font-size:8px;letter-spacing:3px;color:#8fb9d8;margin-top:5px}.speed-readout small{display:block;font-size:7px;letter-spacing:1.5px;color:#9ee6c6;margin:10px 0}.speed-readout button{border:0;background:transparent;color:#a2c8df;font-size:8px;padding:0}.is-playing .spotlight-playing{width:230px;max-height:235px;overflow:auto;top:100px}.is-playing .spotlight-playing .spotlight-heading{font-size:6px;padding:12px}.is-playing .spotlight-playing .spotlight-feature{padding:12px}.is-playing .spotlight-playing .feature-number{font-size:40px}.is-playing .spotlight-playing .spotlight-feature h2{font-size:12px}.is-playing .spotlight-playing .impact-facts,.is-playing .spotlight-playing .spotlight-stores,.is-playing .spotlight-playing .spotlight-footer{display:none}.world-interact{bottom:155px}.is-playing .world-map{width:520px;right:calc(50% - 260px);bottom:50px}.world-map>div{display:flex}.world-quest{width:205px}.world-render canvas{cursor:crosshair}
 @media(max-width:760px){.driving-dashboard{right:12px;bottom:80px;gap:6px}.city-minimap{width:95px;height:115px;padding:4px;border-radius:9px}.speed-readout{padding:9px;min-width:65px}.speed-readout strong{font-size:28px}.speed-readout>span{font-size:6px}.speed-readout small{font-size:6px;margin:6px 0}.speed-readout button{font-size:6px}.is-playing .spotlight-playing{width:178px;max-height:200px;top:80px}.is-playing .spotlight-playing .spotlight-feature{gap:10px}.is-playing .spotlight-playing .spotlight-feature h2{font-size:10px}.is-playing .world-map{left:12px;right:12px;bottom:15px;width:auto}.world-controls{bottom:90px}.world-interact{bottom:215px;right:12px}.world-quest{width:135px}.world-quest>p:not(.world-kicker){font-size:8px}}
+
+
+/* Phone-first layout: keep the 3D city accessible without overlapping HUD panels. */
+@media (max-width: 760px) {
+  .game-world { height: 100dvh; min-height: 0; }
+  .game-world.is-intro { height: auto; min-height: 100dvh; padding-bottom: 0; }
+  .is-intro .world-render { position:fixed; height:100dvh; }
+  .is-intro .world-entry { position:relative; inset:auto; height:auto; min-height:0; padding:110px 5% 24px; overflow:visible; }
+  .is-intro .recruiter-spotlight:not(.spotlight-playing) { position:relative; top:auto; bottom:auto; left:auto; right:auto; width:90%; max-height:none; margin:10px auto 25px; }
+  .is-intro .world-client-strip { position:relative; bottom:auto; left:auto; right:auto; width:90%; margin:0 auto; padding:16px 0 25px; flex-wrap:wrap; }
+  .world-header { flex-wrap:wrap; align-items:center; gap:8px; padding:12px 4%; }
+  .world-header>div { display:flex; justify-content:flex-end; flex-wrap:wrap; gap:5px; max-width:73%; }
+  .world-header button,.world-header a:not(.world-brand) { min-height:36px; padding:8px; font-size:10px; }
+  .world-entry h1 { font-size:clamp(34px,9vw,54px); line-height:1.08; }
+  .hero-proof { gap:8px; }
+  .hero-proof>div { flex:1; min-width:0; }
+  .hero-proof strong { font-size:clamp(18px,5vw,27px); }
+  .hero-proof>div:last-child strong { font-size:12px; }
+  .entry-guide { display:inline-flex; min-height:44px; align-items:center; }
+  .world-primary { min-height:44px; }
+  .is-playing .recruiter-spotlight { display:none; }
+  .is-playing .world-quest { top:76px; left:10px; width:155px; max-height:115px; overflow:auto; padding:9px; }
+  .is-playing .world-quest>p:not(.world-kicker) { display:none; }
+  .is-playing .world-quest .world-kicker { margin-bottom:5px; }
+  .is-playing .driving-dashboard { right:10px; bottom:calc(130px + env(safe-area-inset-bottom)); }
+  .is-playing .city-minimap { width:72px; height:87px; }
+  .is-playing .speed-readout { min-width:55px; padding:7px; }
+  .is-playing .speed-readout strong { font-size:23px; }
+  .is-playing .world-controls { left:10px; bottom:calc(135px + env(safe-area-inset-bottom)); grid-template-columns:repeat(3,48px); gap:5px; z-index:5; }
+  .is-playing .world-controls button { width:48px; height:48px; font-size:20px; }
+  .is-playing .world-map { bottom:calc(10px + env(safe-area-inset-bottom)); left:8px; right:8px; padding:7px; overflow-x:auto; border-radius:12px; }
+  .is-playing .world-map>div { width:max-content; min-width:100%; justify-content:space-around; }
+  .is-playing .world-map button { min-width:55px; min-height:49px; font-size:9px; padding:5px; }
+  .is-playing .world-interact { bottom:calc(215px + env(safe-area-inset-bottom)); left:50%; right:auto; transform:translateX(-50%); max-width:92%; }
+  .world-panel-backdrop { position:fixed; inset:0; padding:0; z-index:30; }
+  .world-panel { width:100%; max-width:none; height:100dvh; max-height:100dvh; border-radius:0; padding:calc(22px + env(safe-area-inset-top)) 20px calc(24px + env(safe-area-inset-bottom)); }
+  .browse-back { bottom:calc(14px + env(safe-area-inset-bottom)); right:12px; padding:11px 14px; }
+}
+@media (max-width: 380px) {
+  .world-brand { font-size:14px; }
+  .world-header>div { max-width:75%; }
+  .world-header button,.world-header a:not(.world-brand) { font-size:9px; padding:6px; }
+  .hero-proof { flex-wrap:wrap; }
+  .is-playing .world-quest { width:132px; }
+}
