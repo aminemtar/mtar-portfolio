@@ -2867,3 +2867,27 @@ body {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+/* Compact classic portfolio layout for phones. */
+@media (max-width: 760px) {
+  html,body,#root,.site { width:100%; max-width:100%; overflow-x:clip; }
+  .site { min-width:0; }
+  .nav,.nav-scrolled { padding:12px 4%; gap:8px; flex-wrap:wrap; }
+  .nav-menu { order:3; width:100%; max-width:100%; justify-content:flex-start; overflow-x:auto; gap:16px; padding:10px 12px; scrollbar-width:none; }
+  .nav-menu::-webkit-scrollbar { display:none; }
+  .nav-item { flex-shrink:0; font-size:12px; }
+  .nav-right { margin-left:auto; gap:5px; }
+  .nav-hire { padding:8px 10px; font-size:11px; }
+  .cv-trigger { padding:8px; font-size:11px; }
+  .cv-menu { min-width:min(280px,90vw); right:0; }
+  .lang-toggle { width:68px; }
+  .hero { padding:145px 5% 55px; min-height:auto; }
+  .hero-title { font-size:clamp(34px,10vw,55px); }
+  .hero-desc { font-size:14px; }
+  .hero-actions { gap:10px; }
+  .btn { max-width:100%; }
+  .modal-shell { max-height:100dvh; height:100dvh; }
+  .modal-scroll { min-height:0; }
+  .modal-gallery-main img { max-height:35dvh; }
+  .browse-back { bottom:calc(12px + env(safe-area-inset-bottom)); }
+}
